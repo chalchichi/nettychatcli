@@ -16,9 +16,8 @@ public class client {
     private final String host;
     private final int port;
 
-    private Channel serverChannel;
+    public Channel serverChannel;
     private EventLoopGroup eventLoopGroup;
-
     public client(String host, int port) {
         this.host = host;
         this.port = port;
@@ -34,6 +33,7 @@ public class client {
         bootstrap.handler(new ClientInitializer());
 
         serverChannel = bootstrap.connect().sync().channel();
+        Serverchanneladapter.serverChannel = serverChannel;
     }
 
     private void start() throws InterruptedException {
@@ -41,27 +41,20 @@ public class client {
 
         String message;
         ChannelFuture future;
-        System.out.print("nicname : ");
+        System.out.print("start : ");
         message = scanner.nextLine();
+        int number = Integer.parseInt(message);
         // Server로 전송
         future = serverChannel.writeAndFlush(message.concat("\n"));
-        while(true) {
-            // 사용자 입력
-            message = scanner.nextLine();
-
-            // Server로 전송
-            future = serverChannel.writeAndFlush(message.concat("\n"));
-
-            if("quit".equals(message)){
-                serverChannel.closeFuture().sync();
-                break;
-            }
+        while (true)
+        {
+            continue;
         }
 
         // 종료되기 전 모든 메시지가 flush 될때까지 기다림
-        if(future != null){
-            future.sync();
-        }
+//        if(future != null){
+//            future.sync();
+//        }
     }
 
     public void close() {
@@ -70,7 +63,6 @@ public class client {
 
     public static void main(String[] args) throws Exception {
         client client = new client("127.0.0.1", SERVER_PORT);
-
         try {
             client.connect();
             client.start();
